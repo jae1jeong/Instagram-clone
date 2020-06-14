@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}title
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col"></div>
+        <div class="col-5">
+            {% for content in contents %}
+            <div class="card">
+                <div class="card-header">
+                    {{ content.author.username }}
+                </div>
+                <img src="{{content.image.url}}" class="card-img-top" alt="">
+                <div class="card-body">
+                    <p class="card-text">{{content.text}}</p>
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% if user.is_authenticated %}
+                    <li class="list-group-item"><a href="{% url 'photo:like' content.id %}" class="float-left btn-like {%if user in content.like.all%} active {% endif %}">좋아요</a>
+                    {% if content.like.all.count %}
+                        <span class="float-left">{{content.like.all.count}}</span>
+                        {% endif %}
+                        <a href="{% url 'photo:favorite' content.id %}" class="float-right btn-favorite {% if user in content.favorite.all %}active{%endif%}">저장하기</a>
+                    </li>
+                    {% endif %}
+                    <li class="list-group-item">생성일 : {{content.created}}</li>
+                </ul>
+                <div class="card-body">
+                    <a href="{% url 'photo:detail' content.id %}" class="card-link" style="float:right;">댓글달기</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+            <div class="media col">
+                <a href="{% url 'accounts:profile' profile.user.id %}"><img class="round "src="{{profile.profile_photo.url}}" class="mr-3" alt="..." width="100" style="margin-right:15px;"></a>
+                 <div class="media-body">
+                     <h5 class="mt-0"> <strong>{{profile.user.username}}</strong></h5>
+                    {{profile.nick_name}}
+                 </div>
+            </div>
+</div>
+
+        </div>
+    </div>
+
+
+</div>
+{% endblock %}

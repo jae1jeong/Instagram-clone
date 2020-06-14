@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+{{request.user 님}}
+{% for object in object_list %}
+<tr>
+    <td>{[object.username}}</td>
+    <td><a href="{% url 'accounts:following' object.id %}" class="btn btn-xs btn-outline-success">Follow</a></td>
+
+    <td><a href="{% url 'accounts:unfollow' object.id %}" class="btn btn-xs btn-outline-success">UnFollow</a></td>
+</tr>
+
+{% endfor%}
+{% if follower %}
+<h2>날 팔로우 하는 사람들</h2>
+<ul>{% for obj in follower%}
+    <li>{{obj.follwer.username}}{% if obj.follower.id not in following.ids %}</li><button class="follow" data-user-id="{{user.id}}">팔로우</button>
+    {% endfor %}
+</ul>
+{% endif %}
+
+{% if following %}
+<h2>내가 팔로우 하는 사람들</h2>
+<ul>
+    {% for user in following %}
+    <li>{{user.username}}</li><button class="unnollow" data-user-id="{{user.id}}">언팔로우</button>
+    {% endfor %}
+</ul>
+
+{% endblock %}

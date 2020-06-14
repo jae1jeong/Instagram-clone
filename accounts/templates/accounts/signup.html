@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row">
+    <div class="col"></div>
+    <div class="'">
+        <div class="alert_alert-primary">회원가입</div>
+    <form action="." method="post">
+        {% csrf_token %}
+        <div>{{ error }}</div>
+        {{form}}
+<!--        <div><label for="">사용자 이름<input type="text" name="username"></label></div>-->
+<!--        <div><label for="">비밀번호<input type="password" name="password"></label></div>-->
+<!--        <div><label for="">비밀번호 확인<input type="password" name="password2"></label></div>-->
+        <input type="submit" value="signup" class="btn btn-primary">
+    </form>
+</div>
+<div class="col"></div>
+</div>
+{% endblock %}

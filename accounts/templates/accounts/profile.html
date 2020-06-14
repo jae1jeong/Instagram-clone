@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block content %}
+{% load static %}
+{% load thumbnail %}
+
+<div class="row">
+    <div class="col"></div>
+    <div class="col-xs-6 col-md-2">
+        {% if profile_user.profile.profile_photo %}
+        <img class="round" src="{{profile_user.profile.profile_photo.url}}" width="200"> <br>
+        {% else %}
+        <img class="round" src="{% static 'default_profile/default_user.jpg' %}" width="200"> <br>
+        {% endif %}
+    </div>
+    <div class="col-xs-6 col-md-3">
+        {% if profile_user.profile.nickname %}
+        <h2>{{profile_user.profile.nickname}}</h2>
+        {% endif %}
+        <h3> {{profile_user.username}}
+            {% if user == profile_user %}   <!-- 로그인한 사용자와 profile_user(프로필 소유자)가 일치할 때만 프로필 편집이 가능하도록 함 -->
+        <a href="{%url 'accounts:profile_update' user.id%}">
+            <button type="button" class="btn btn-secondary">프로필 편집</button></a></h2>
+        {% endif %}
+
+            {% if request.user != profile_user %}
+
+            <button type="button" class="btn btn-secondary">팔로우</button></a>
+            {% endif %}
+            <br>
+        </h3>
+        <span>게시글: <strong>{{post_numbers}}</strong> </span> <span id="follower">팔로워: <strong>{{object_followers.count}}</strong></span> <span id="follow">팔로우:<strong>{{followees.count}}</strong></span>
+    </div>
+    <div class="col"></div>
+</div>
+<div class="row" style="margin-top: 50px;">
+
+            {% for post in object_posts%}
+            <div class="col-xs-6 col-md-4">
+
+            {% thumbnail post.image "300x300" crop="center" as im %}
+                <a href="{% url 'photo:detail' post.id %}"><img src="{{im.url}}" width="{{im.width}}" height="{{im.height}}"/></a>
+                {% endthumbnail %}
+            </div>
+            {% endfor %}
+
+</div>
+
+
+<div class="modal" tabindex="-1" role="dialog" id="Myfollower">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">팔로워</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        {% if object_followers %}
+        {% for obj in object_followers%}
+        <a href="{%url 'accounts:profile' obj.follower.id %}"><p>{{obj.follower.username}}</p></a>
+        {% endfor %}
+        {% else %}
+        <p>&nbsp;팔로워가 없습니다.</p>
+        {% endif %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">닫기</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal" tabindex="-1" role="dialog" id="Myfollow">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">팔로우</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        {% if followees %}
+        {% for followee in followees %}
+        <a href="{% url 'accounts:profile' followee.id %}"><p>{{followee.username}}</p></a>
+        {% endfor %}
+        {% else %}
+        <p>팔로워가 없습니다.</p>
+        {% endif %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">닫기</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+$(document).ready(function(){
+    $("#follower").click(function(){
+        $("#Myfollower").modal();
+    });
+});
+$(document).ready(function(){
+    $("#follow").click(function(){
+        $("#Myfollow").modal();
+    });
+});
+
+</script>
+{% endblock %}

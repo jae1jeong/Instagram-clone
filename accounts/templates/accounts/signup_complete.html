@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col"></div>
+    <div class="col-6">
+        <div class="alert alert-primary" role="alert">
+            회원가입이 성공적으로 완료되었습니다.
+            <a href="{% url 'accounts:login'%}">로그인으로 이동하기</a>
+        </div>
+    </div>
+    <div class="col"></div>
+</div>
+{% endblock %}

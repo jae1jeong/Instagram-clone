@@ -2,7 +2,7 @@ from django.http import HttpResponseRedirect
 from django.http import HttpResponseForbidden
 from urllib.parse import urlparse
 from django.views.generic.list import ListView
-from django.views.generic.edit import CreateView,UpdateView,DeleteView,FormMixin
+from django.views.generic.edit import CreateView,UpdateView,DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.detail import DetailView
 from .models import Photo,Comment
@@ -11,11 +11,16 @@ from django.contrib import messages
 from django.views.generic.base import View
 from .forms import CommentForm
 from django.urls import reverse
-from django.shortcuts import get_object_or_404,render
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from accounts.models import FollowerRelation,Profile
+from django.contrib.auth import get_user_model
 
+
+# def chk_requser_objuser(obj_usr,req_usr):
+#     if obj_usr != req_usr:
+#         return False
+#     return True
 
 class PhotoList(LoginRequiredMixin,ListView):
     # 모든 유저들의 게시글을 볼 수 있음
@@ -24,11 +29,16 @@ class PhotoList(LoginRequiredMixin,ListView):
     model = Photo
     template_name_suffix = "_list"
 
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super(PhotoList,self).get_context_data(**kwargs)
+        return context
+
 @method_decorator(login_required,name='dispatch')
 class PhotoFeed(ListView):
     # 팔로우한 사람 게시글만 볼 수 있음
     template_name_suffix = "_feed"
     model = Photo
+    paginate_by = 1
 
     def get_context_data(self,**kwargs):
         context = super(PhotoFeed,self).get_context_data(**kwargs)
@@ -36,7 +46,14 @@ class PhotoFeed(ListView):
         followees = FollowerRelation.objects.filter(follower=user).values_list("followee__id",flat=True)
         lookup_user_ids = [user.id] + list(followees)
         context['contents'] = Photo.objects.select_related("author").filter(author__id__in = lookup_user_ids)
-        context['profile'] = Profile.objects.get(user=user)
+        User = get_user_model()
+        can_follow_users_list = User.objects.exclude(id__in=lookup_user_ids)
+        context["can_follow_users_list"] = can_follow_users_list
+        try:
+            context['profile'] = Profile.objects.get(user=user)
+        except Profile.DoesNotExist:
+            user_profile = Profile.objects.create(user=user,profile_photo="/default_user.jpg")
+            user_profile.save()
         return context
 
 class PhotoCreate(LoginRequiredMixin,CreateView):
@@ -74,6 +91,7 @@ class PhotoDelete(DeleteView):
 
     def dispatch(self, request, *args, **kwargs):
         object = self.get_object()
+
         if object.author != request.user:
             messages.warning(request,"삭제할 권한이 없습니다.")
             return HttpResponseRedirect("/")
@@ -92,7 +110,6 @@ class PhotoDetail(DetailView,LoginRequiredMixin):
     def get_context_data(self, **kwargs): # template 보낼 context 설정
         context = super().get_context_data(**kwargs)
         comments_connected = Comment.objects.filter(photo=self.get_object()).order_by("-comment_date")
-        # Comment.objects.filter(post_connected=self.get_object()).order_by('-date_posted')
         context['comments'] = comments_connected
         context['form'] = CommentForm(instance=self.request.user)
         return context
@@ -167,17 +184,19 @@ class PhotoFavoriteList(ListView):
         queryset = user.favorite_post.all()
         return queryset
 
+
+
 #
-# class CommentDelete(DeleteView):
-#     model = Comment
-#     template_name_suffix = "_delete"
-#     success_url = "/"
-#
-#     def dispatch(self, request, *args, **kwargs):
-#         object = self.get_object()
-#         if object.author != request.user:
-#             messages.warning(request,"삭제할 권한이 없습니다.")
-#             return HttpResponseRedirect("/")
-#         else:
-#             return super(PhotoDelete,self).dispatch(request,*args,**kwargs)
+class CommentDelete(DeleteView):
+    model = Comment
+    template_name_suffix = "_delete"
+    success_url = "/"
+
+    def dispatch(self, request, *args, **kwargs):
+        object = self.get_object()
+        if object.author != request.user:
+            messages.warning(request,"삭제할 권한이 없습니다.")
+            return HttpResponseRedirect("/")
+        else:
+            return super(CommentDelete,self).dispatch(request,*args,**kwargs)
 

@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}title
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col">
+            {% if can_follow_users_list %}
+    <h5>회원님을 위한 친구 추천</h5>
+  <ul class="list-group list-group-flush">
+
+      {% for usr in can_follow_users_list %}
+              <li class="media">
+                <a href="{% url 'accounts:profile' usr.profile.user.id%}"><img class="round "src="{{usr.profile.profile_photo.url}}" class="mr-3" alt="..." width="30" style="margin-right:15px;"></a>
+                <div class="media-body">
+                     <h5 class="mt-0"> <strong>{{usr.username}}</strong><a href="{%url 'accounts:relation_create' usr.profile.user.id %}" class="float-right"><button type="button" class="btn btn-secondary">팔로우</button></a></h5>
+                </div>
+              </li>
+            {% endfor %}
+  </ul>
+            {% endif %}
+</div>
+
+        <div class="col-5">
+            {% if contents %}
+            {% for content in contents %}
+            <div class="card infinite-item">
+                <div class="card-header">
+                    <img src="{{content.author.profile.profile_photo.url}}" style="margin-right:10px;" class="round" width="50" alt=""><a href="{% url 'accounts:profile' content.author.id %}">{{ content.author.username }}</a>
+                </div>
+                <img src="{{content.image.url}}" class="card-img-top" alt="">
+                <div class="card-body">
+                    <p class="card-text">{{content.text}}</p>
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% if user.is_authenticated %}
+                    <li class="list-group-item"><a href="{% url 'photo:like' content.id %}" class="float-left btn-like {%if user in content.like.all%} active {% endif %}">좋아요</a>
+                    {% if content.like.all.count %}
+                        <span class="float-left">{{content.like.all.count}}</span>
+                        {% endif %}
+                        <a href="{% url 'photo:favorite' content.id %}" class="float-right btn-favorite {% if user in content.favorite.all %}active{%endif%}">저장하기</a>
+                    </li>
+                    {% endif %}
+                    <li class="list-group-item">생성일 : {{content.created}}</li>
+                </ul>
+                <div class="card-body">
+                    {% for comment in content.comments.all %}
+                    <div><strong><a href="{% url 'accounts:profile' comment.author.id%}">{{comment.author}}</a></strong>: {{comment.comment_content}}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="card-body">
+                    <a href="{% url 'photo:detail' content.id %}" class="card-link" style="float:right;">댓글달기</a>
+                </div>
+
+            </div>
+            {% endfor %}
+                            {% if page_obj.has_next %}
+                <a class="infinite-more-link" href="?page={{ page_obj.next_page_number }}"></a>
+                {% endif %}
+                <div class="d-flex justify-content-center" style="display:none;">
+                    <div class="spinner-border" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+            </div>
+
+         {% endif %}
+
+                    <ul class="list-unstyled col-md-4">
+  <li class="media">
+                <a href="{% url 'accounts:profile' profile.user.id %}"><img class="round "src="{{profile.profile_photo.url}}" class="mr-3" alt="..." width="100" style="margin-right:15px;"></a>
+    <div class="media-body">
+                     <h5 class="mt-0"> <strong>{{profile.user.username}}</strong> </h5>
+        <h6>{{profile.nick_name}}</h6>
+    </div>
+  </li>
+        </ul>
+
+        </div>
+
+
+        </div>
+    </div>
+  </li>
+
+</div>
+        </div>
+    </div>
+
+
+
+<script>
+    var infinite = new Waypoint.Infinite({
+        element: $('.infinite-container')[0],
+        handler: function(direction) {
+
+    },
+    offset: 'bottom-in-view',
+
+    onBeforePageLoad: function () {
+    $('.spinner-border').show();
+    },
+    onAfterPageLoad: function () {
+    $('.spinner-border').hide();
+    }
+
+    });
+
+</script>
+
+{% endblock %}

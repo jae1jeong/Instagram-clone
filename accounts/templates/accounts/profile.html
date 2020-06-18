@@ -13,22 +13,24 @@
         {% endif %}
     </div>
     <div class="col-xs-6 col-md-3">
-        {% if profile_user.profile.nickname %}
-        <h2>{{profile_user.profile.nickname}}</h2>
-        {% endif %}
-        <h3> {{profile_user.username}}
-            {% if user == profile_user %}   <!-- 로그인한 사용자와 profile_user(프로필 소유자)가 일치할 때만 프로필 편집이 가능하도록 함 -->
-        <a href="{%url 'accounts:profile_update' user.id%}">
+        <h3 style="margin-left:15px;"> {{profile_user.username}}
+            {% if request.user == profile_user %}   <!-- 로그인한 사용자와 profile_user(프로필 소유자)가 일치할 때만 프로필 편집이 가능하도록 함 -->
+        <a href="{%url 'accounts:profile_update' request.user.id%}">
             <button type="button" class="btn btn-secondary">프로필 편집</button></a></h2>
         {% endif %}
 
             {% if request.user != profile_user %}
+            {% if profile_user.id in request_user_following %}
+            <a href="{%url 'accounts:relation_create' profile_user.id %}"><button  type="button" class="btn btn-secondary" >언팔로우</button></a>
+            {% else %}
+            <a href="{%url 'accounts:relation_create' profile_user.id %}"><button  type="button" class="btn btn-secondary" >팔로우</button></a>
+            {% endif %}
 
-            <button type="button" class="btn btn-secondary">팔로우</button></a>
             {% endif %}
             <br>
         </h3>
-        <span>게시글: <strong>{{post_numbers}}</strong> </span> <span id="follower">팔로워: <strong>{{object_followers.count}}</strong></span> <span id="follow">팔로우:<strong>{{followees.count}}</strong></span>
+        <p></p>
+        <span style="margin-left:15px;">게시글: <strong>{{post_numbers}}</strong> </span> <span id="follower">팔로워: <strong>{{object_followers.count}}</strong></span> <span id="follow">팔로우:<strong>{% if not followees.count %}0{%else%}{{followees.count}}{% endif %}</strong></span>
     </div>
     <div class="col"></div>
 </div>
@@ -45,7 +47,6 @@
 
 </div>
 
-
 <div class="modal" tabindex="-1" role="dialog" id="Myfollower">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -58,7 +59,13 @@
       <div class="modal-body">
         {% if object_followers %}
         {% for obj in object_followers%}
-        <a href="{%url 'accounts:profile' obj.follower.id %}"><p>{{obj.follower.username}}</p></a>
+          <li class="media">
+                <a href="{% url 'accounts:profile' obj.follower.id  %}"><img class="round "src="{{obj.follower.profile.profile_photo.url}}" class="mr-3" alt="..." width="30" style="margin-right:15px;"></a>
+                <div class="media-body">
+                     <h5 class="mt-0"> <strong>{{obj.follower.username}}</strong></h5>
+                </div>
+          </li>
+
         {% endfor %}
         {% else %}
         <p>&nbsp;팔로워가 없습니다.</p>
@@ -82,7 +89,12 @@
       <div class="modal-body">
         {% if followees %}
         {% for followee in followees %}
-        <a href="{% url 'accounts:profile' followee.id %}"><p>{{followee.username}}</p></a>
+          <li class="media">
+                <a href="{% url 'accounts:profile' followee.id %}"><img class="round "src="{{followee.profile.profile_photo.url}}" class="mr-3" alt="..." width="30" style="margin-right:15px;"></a>
+                <div class="media-body">
+                     <h5 class="mt-0"> <strong>{{followee.username}}</strong></h5>
+                </div>
+          </li>
         {% endfor %}
         {% else %}
         <p>팔로워가 없습니다.</p>

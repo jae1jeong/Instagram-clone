@@ -64,6 +64,9 @@
     .col-xs-6,.col-md-4{
         margin-bottom: 20px;
     }
+    .profile_box{
+        float : left;
+    }
     </style>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <a class="navbar-brand" href="{% url 'photo:index' %}">Stagram</a>
@@ -89,7 +92,6 @@
         <li class="nav-item">
           <a class="nav-link" href="{% url 'accounts:profile' user.id %}">내 프로필</a>
       </li>
-
         {% else %}
         <li class="nav-item">
           <a class="nav-link" href="{% url 'accounts:login' %}">SignIn</a>
@@ -99,6 +101,11 @@
       </li>
         {% endif %}
     </ul>
+      <form class="form-inline my-2 my-lg-0" action="" method="get" onsubmit="return validateForm();" >
+      <input class="form-control mr-sm-2" type="search" id="search" placeholder="Search" aria-label="Search">
+      <button class="btn btn-outline-info my-2 my-sm-0" type="submit">Search</button>
+    </form>
+
   </div>
 </nav>
 <div class="container">
@@ -118,5 +125,16 @@
     {% block content %}
     {% endblock %}
  </div>
+<script>
+    function validateForm(){
+
+    let text = document.getElementById("search").value;
+    location.href = "search/?q=" + text;
+    return false;
+    }
+</script>
+<script src="{% static '/js/jquery-2.2.4.min.js' %}"></script>
+<script src="{% static '/js/jquery.waypoints.min.js' %}"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/waypoints/2.0.5/waypoints.min.js"></script>
+<script src="{% static '/js/infinite.min.js' %}"></script>
 </body>
 </html>

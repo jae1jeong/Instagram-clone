@@ -1,6 +1,6 @@
 from django.urls import path
 from django.contrib.auth.views import LoginView,LogoutView
-from .views import SignUp,ProfileView,ProfileUpdate
+from .views import SignUp,ProfileView,ProfileUpdate,RelationCreate
 
 app_name = "accounts"
 
@@ -10,4 +10,5 @@ urlpatterns = [
     path('signup/',SignUp,name="signup"),
     path('profile/<int:pk>/',ProfileView.as_view(),name="profile"),
     path("profile/update/<int:pk>",ProfileUpdate.as_view(), name="profile_update"),
+    path('relation/create/<int:pk>',RelationCreate.as_view(),name="relation_create"),
 ]

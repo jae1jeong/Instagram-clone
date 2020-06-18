@@ -10,7 +10,8 @@
             {% for object in object_list %}
             <div class="card">
                 <div class="card-header">
-                    {{ object.author }}
+
+                    <img src="" alt=""><a href="{%url 'accounts:profile' object.id %}">{{ object.author }}</a>
                 </div>
                 <img src="{{object.image.url}}" class="card-img-top" alt="">
                 <div class="card-body">
@@ -27,6 +28,12 @@
                     {% endif %}
                     <li class="list-group-item">생성일 : {{object.created}}</li>
                 </ul>
+                <div class="card-body">
+                    {% for comment in object.comments.all %}
+                    <div><strong><a href="{% url 'accounts:profile' comment.author.id%}">{{comment.author}}</a></strong>: {{comment.comment_content}}</div>
+                    {% endfor %}
+                </div>
+
                 <div class="card-body">
                     <a href="{% url 'photo:detail' object.id %}" class="card-link" style="float:right;">댓글달기</a>
                 </div>

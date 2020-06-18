@@ -1,0 +1,4 @@
+
+{{object.user.username}}
+{{object.nickname}}
+{{object.profile_photo.url}}
